@@ -94,5 +94,19 @@ function searchUserByEmail($email)
     return getByCondition("users", ["email" => $email], "email =:email", false);
 }
 
+function getContributionsByUsers($userid,$projectid)
+{
+    $query = "SELECT DISTINCT projects.id AS projectid,projects.name AS projectname, groups.id AS groupid, groups.name AS groupname, works.name AS workname, works.id AS workid, COUNT(distinct tasks.id) AS totaltasks
+FROM users            
+INNER join `join` ON `join`.user_id = users.id
+INNER join `groups` ON `groups`.id = `join`.group_id
+INNER join participate ON `groups`.id = participate.group_id
+INNER join projects ON projects.id = participate.project_id
+INNER join works ON works.project_id = projects.id
+INNER join tasks ON tasks.work_id = works.id
+WHERE `join`.state IN(7,8) AND participate.state IN(2,3) AND tasks.responsible_id = :tasksresponsible AND projects.id = :projectid AND users.id = :userid 
+GROUP BY tasks.work_id";
 
+   return Query($query, ["tasksresponsible"=>$userid,"projectid"=>$projectid,"userid"=>$userid,],true);
+}
 ?>
