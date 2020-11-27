@@ -96,7 +96,7 @@ function searchUserByEmail($email)
 
 function getContributionsByUsers($userid,$projectid)
 {
-    $query = "SELECT DISTINCT projects.id AS projectid,projects.name AS projectname, groups.id AS groupid, groups.name AS groupname, works.name AS workname, works.id AS workid, COUNT(distinct tasks.id) AS totaltasks
+    $query = "SELECT DISTINCT projects.id AS projectid,projects.name AS projectname, works.name AS workname, works.id AS workid, COUNT(distinct tasks.id) AS totaltasks
 FROM users            
 INNER join `join` ON `join`.user_id = users.id
 INNER join `groups` ON `groups`.id = `join`.group_id
