@@ -94,8 +94,13 @@ function searchUserByEmail($email)
     return getByCondition("users", ["email" => $email], "email =:email", false);
 }
 
-function getContributionsByUsers($userid,$projectid)
+function getContributionsByUsers($userid,$isInRun)
 {
+    if ($isInRun){
+        $participatestate=TASK_STATE_INRUN;
+    }else{
+        $participatestate=TASK_STATE_DONE;
+    }
     $query = "SELECT DISTINCT projects.id AS projectid,projects.name AS projectname, works.name AS workname, works.id AS workid, COUNT(distinct tasks.id) AS totaltasks
 FROM users            
 INNER join `join` ON `join`.user_id = users.id
@@ -104,9 +109,10 @@ INNER join participate ON `groups`.id = participate.group_id
 INNER join projects ON projects.id = participate.project_id
 INNER join works ON works.project_id = projects.id
 INNER join tasks ON tasks.work_id = works.id
-WHERE `join`.state IN(7,8) AND participate.state IN(2,3) AND tasks.responsible_id = :tasksresponsible AND projects.id = :projectid AND users.id = :userid 
-GROUP BY tasks.work_id";
+WHERE `join`.state IN(:state1,:state2) AND participate.state = :participatestate AND tasks.responsible_id = :userid  AND users.id = :userid 
+GROUP BY tasks.work_id
+ORDER BY totaltasks DESC";
 
-   return Query($query, ["tasksresponsible"=>$userid,"projectid"=>$projectid,"userid"=>$userid,],true);
+   return Query($query, ["state1"=>JOIN_STATE_INVITATION_ACCEPTED,"state2"=>JOIN_STATE_APPROVED,"userid"=>$userid,"participatestate"=>$participatestate],true);
 }
 ?>
